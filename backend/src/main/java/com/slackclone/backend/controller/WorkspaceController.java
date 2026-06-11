@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/workspaces")
 @RequiredArgsConstructor
@@ -26,4 +28,14 @@ public class WorkspaceController {
                 authentication
         );
     }
+    @GetMapping
+    public List<WorkspaceResponse> getMyWorkspaces(
+            Authentication authentication
+    ) {
+
+        return workspaceService.getMyWorkspaces(
+                authentication
+        );
+    }
+
 }

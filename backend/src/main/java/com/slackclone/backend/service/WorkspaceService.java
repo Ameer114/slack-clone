@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class WorkspaceService {
@@ -52,5 +54,33 @@ public class WorkspaceService {
                 .name(savedWorkspace.getName())
                 .description(savedWorkspace.getDescription())
                 .build();
+    }
+
+    public List<WorkspaceResponse> getMyWorkspaces(
+            Authentication authentication
+    ) {
+
+        User user = userRepository
+                .findByEmail(authentication.getName())
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        List<WorkspaceMember> memberships =
+                workspaceMemberRepository.findByUser(user);
+
+        return memberships.stream()
+                .map(membership -> {
+
+                    Workspace workspace =
+                            membership.getWorkspace();
+
+                    return WorkspaceResponse.builder()
+                            .id(workspace.getId())
+                            .name(workspace.getName())
+                            .description(workspace.getDescription())
+                            .build();
+
+                })
+                .toList();
     }
 }
