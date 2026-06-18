@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/workspaces")
@@ -34,6 +35,18 @@ public class WorkspaceController {
     ) {
 
         return workspaceService.getMyWorkspaces(
+                authentication
+        );
+    }
+
+    @PostMapping("/{workspaceId}/join")
+    public void joinWorkspace(
+            @PathVariable UUID workspaceId,
+            Authentication authentication
+    ) {
+
+        workspaceService.joinWorkspace(
+                workspaceId,
                 authentication
         );
     }

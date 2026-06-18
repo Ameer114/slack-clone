@@ -9,11 +9,13 @@ import com.slackclone.backend.enums.WorkspaceRole;
 import com.slackclone.backend.repository.UserRepository;
 import com.slackclone.backend.repository.WorkspaceMemberRepository;
 import com.slackclone.backend.repository.WorkspaceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -82,5 +84,40 @@ public class WorkspaceService {
 
                 })
                 .toList();
+    }
+
+    @Transactional
+    public void joinWorkspace(
+            UUID workspaceId,
+            Authentication authentication
+    ) {
+
+        User user = userRepository
+                .findByEmail(authentication.getName())
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        Workspace workspace = workspaceRepository
+                .findById(workspaceId)
+                .orElseThrow(() ->
+                        new RuntimeException("Workspace not found"));
+
+        if (workspaceMemberRepository.existsByWorkspaceAndUser(
+                workspace,
+                user
+        )) {
+
+            throw new RuntimeException(
+                    "You are already a member of this workspace"
+            );
+        }
+
+        WorkspaceMember membership = WorkspaceMember.builder()
+                .workspace(workspace)
+                .user(user)
+                .role(WorkspaceRole.MEMBER)
+                .build();
+
+        workspaceMemberRepository.save(membership);
     }
 }
