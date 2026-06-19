@@ -36,7 +36,11 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/auth/**")
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/ws",
+                                "/ws/**"
+                        )
                         .permitAll()
 
                         .anyRequest()
@@ -46,9 +50,9 @@ public class SecurityConfig {
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
-                )
+                );
 
-                .httpBasic(Customizer.withDefaults());
+//                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }

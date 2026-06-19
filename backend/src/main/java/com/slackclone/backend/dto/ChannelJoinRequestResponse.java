@@ -21,4 +21,16 @@ public class ChannelJoinRequestResponse {
     private String email;
 
     private RequestStatus status;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ChatMessageRequest {
+
+        private UUID channelId;
+
+        private String content;
+    }
 }
