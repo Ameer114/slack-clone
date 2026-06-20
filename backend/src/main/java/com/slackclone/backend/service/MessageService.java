@@ -7,6 +7,7 @@ import com.slackclone.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Collections;
 
 import java.util.List;
 import java.util.UUID;
@@ -114,6 +115,54 @@ public class MessageService {
                 .createdAt(savedMessage.getCreatedAt())
                 .build();
     }
+
+    @Transactional
+    public ChatMessageResponse saveBotMessage(
+            UUID channelId,
+            String content
+    ) {
+
+        User bot =
+                userRepository
+                        .findByEmail(
+                                "amiebot@system.local"
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "AmiBot not found"
+                                ));
+
+        Channel channel =
+                channelRepository
+                        .findById(channelId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Channel not found"
+                                ));
+
+        validateChannelAccess(
+                bot,
+                channel
+        );
+
+        Message message =
+                Message.builder()
+                        .content(content)
+                        .sender(bot)
+                        .channel(channel)
+                        .build();
+
+        Message savedMessage =
+                messageRepository.save(message);
+
+        return ChatMessageResponse.builder()
+                .messageId(savedMessage.getId())
+                .senderId(bot.getId())
+                .username(bot.getUsername())
+                .content(savedMessage.getContent())
+                .createdAt(savedMessage.getCreatedAt())
+                .build();
+    }
     public List<ChatMessageResponse> getChannelMessages(
             UUID channelId,
             String email
@@ -166,4 +215,48 @@ public class MessageService {
                 )
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public String buildChannelContext(
+            UUID channelId
+    ) {
+
+        Channel channel =
+                channelRepository
+                        .findById(channelId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Channel not found"
+                                ));
+
+        List<Message> messages =
+                messageRepository
+                        .findTop20ByChannelOrderByCreatedAtDesc(
+                                channel
+                        );
+
+        Collections.reverse(messages);
+
+        StringBuilder context =
+                new StringBuilder();
+
+        for (Message message : messages) {
+
+            context.append(
+                    message.getSender()
+                            .getUsername()
+            );
+
+            context.append(": ");
+
+            context.append(
+                    message.getContent()
+            );
+
+            context.append("\n");
+        }
+
+        return context.toString();
+    }
+
 }

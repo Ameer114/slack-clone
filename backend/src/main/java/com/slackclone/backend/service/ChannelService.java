@@ -86,6 +86,25 @@ public class ChannelService {
         channelMemberRepository.save(
                 ownerMembership
         );
+        User bot =
+                userRepository.findByEmail(
+                                "amiebot@system.local"
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "AmiBot not found"
+                                ));
+        ChannelMember botMember =
+                ChannelMember.builder()
+                        .channel(savedChannel)
+                        .user(bot)
+                        .role(ChannelRole.MEMBER)
+                        .build();
+
+        channelMemberRepository.save(
+                botMember
+        );
+
         return ChannelResponse.builder()
                 .id(savedChannel.getId())
                 .name(savedChannel.getName())

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Hash, Lock, Plus, Info } from 'lucide-react';
+import { Hash, Lock, Plus, Info, X } from 'lucide-react';
 import { api } from '../services/api';
 
 export function ChannelSidebar({
@@ -13,7 +13,9 @@ export function ChannelSidebar({
   onRejectRequest,
   onChannelSelect,
   onChannelCreated,
-  onOpenChannelInfo
+  onOpenChannelInfo,
+  mobileOpen,
+  onMobileClose
 }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [channelName, setChannelName] = useState('');
@@ -51,11 +53,21 @@ export function ChannelSidebar({
   };
 
   return (
-    <div className="channels-sidebar">
+    <>
+      {/* Mobile overlay backdrop */}
+      {mobileOpen && (
+        <div className="mobile-sidebar-overlay" onClick={onMobileClose} />
+      )}
+      <div className={`channels-sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       {/* Sidebar Header */}
       <div className="sidebar-header">
-        <div className="workspace-name" title={workspace?.name}>
-          {workspace?.name || 'Loading Workspace...'}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="workspace-name" title={workspace?.name}>
+            {workspace?.name || 'Loading Workspace...'}
+          </div>
+          <button className="mobile-sidebar-close" onClick={onMobileClose} aria-label="Close sidebar">
+            <X size={18} />
+          </button>
         </div>
         <div className="user-profile">
           <div className="user-status-dot"></div>
@@ -293,5 +305,6 @@ export function ChannelSidebar({
         </div>
       )}
     </div>
+    </>
   );
 }

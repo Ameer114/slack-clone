@@ -41,6 +41,25 @@ public class WorkspaceService {
 
         Workspace savedWorkspace =
                 workspaceRepository.save(workspace);
+        User bot =
+                userRepository.findByEmail(
+                                "amiebot@system.local"
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "AmiBot not found"
+                                ));
+
+        WorkspaceMember botMembership =
+                WorkspaceMember.builder()
+                        .workspace(savedWorkspace)
+                        .user(bot)
+                        .role(WorkspaceRole.MEMBER)
+                        .build();
+
+        workspaceMemberRepository.save(
+                botMembership
+        );
 
         WorkspaceMember ownerMembership =
                 WorkspaceMember.builder()

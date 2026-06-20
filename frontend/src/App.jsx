@@ -19,6 +19,9 @@ function App() {
   
   // Modals
   const [showChannelInfo, setShowChannelInfo] = useState(false);
+  
+  // Mobile sidebar toggle
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Load profile, connect WebSockets, and fetch workspaces if token exists
   useEffect(() => {
@@ -303,9 +306,14 @@ function App() {
           pendingRequests={pendingRequests}
           onApproveRequest={handleApproveRequest}
           onRejectRequest={handleRejectRequest}
-          onChannelSelect={setActiveChannel}
+          onChannelSelect={(chan) => {
+            setActiveChannel(chan);
+            setShowMobileSidebar(false);
+          }}
           onChannelCreated={handleChannelCreated}
           onOpenChannelInfo={() => setShowChannelInfo(true)}
+          mobileOpen={showMobileSidebar}
+          onMobileClose={() => setShowMobileSidebar(false)}
         />
       )}
 
@@ -316,6 +324,7 @@ function App() {
         username={currentUsername}
         onChannelJoined={handleChannelJoined}
         onOpenChannelInfo={() => setShowChannelInfo(true)}
+        onToggleSidebar={() => setShowMobileSidebar(prev => !prev)}
       />
 
       {/* 4. Channel Details Modal */}

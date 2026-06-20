@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Send, Hash, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Send, Hash, Lock, CheckCircle2, AlertCircle, X, ChevronRight } from 'lucide-react';
 import { api } from '../services/api';
 import { wsClient } from '../services/websocket';
 
@@ -8,7 +8,8 @@ export function ChatArea({
   channel,
   username,
   onChannelJoined,
-  onOpenChannelInfo
+  onOpenChannelInfo,
+  onToggleSidebar
 }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -17,10 +18,53 @@ export function ChatArea({
   const [requestSent, setRequestSent] = useState(false);
   const [submittingRequest, setSubmittingRequest] = useState(false);
   
+  // Mention popup state
+  const [showMentionPopup, setShowMentionPopup] = useState(false);
+  const [mentionFilter, setMentionFilter] = useState('');
+  const [mentionStartIndex, setMentionStartIndex] = useState(-1);
+  
+  // Onboarding tip state
+  const [showBotTip, setShowBotTip] = useState(false);
+  const [tipDismissing, setTipDismissing] = useState(false);
+  
   const messagesEndRef = useRef(null);
   const subscriptionRef = useRef(null);
+  const textareaRef = useRef(null);
+  const tipTimerRef = useRef(null);
 
   const hasJoined = channel && channel.joined !== false;
+
+  // Show onboarding bot tip once per user
+  useEffect(() => {
+    if (!channel || !hasJoined) return;
+    const tipKey = 'slack_amiebot_tip_seen';
+    if (localStorage.getItem(tipKey)) return;
+
+    // Small delay so the chat loads first
+    const showTimer = setTimeout(() => {
+      setShowBotTip(true);
+      localStorage.setItem(tipKey, 'true');
+
+      // Auto-dismiss after 8 seconds
+      tipTimerRef.current = setTimeout(() => {
+        dismissTip();
+      }, 8000);
+    }, 1200);
+
+    return () => {
+      clearTimeout(showTimer);
+      if (tipTimerRef.current) clearTimeout(tipTimerRef.current);
+    };
+  }, [channel?.id, hasJoined]);
+
+  const dismissTip = useCallback(() => {
+    setTipDismissing(true);
+    setTimeout(() => {
+      setShowBotTip(false);
+      setTipDismissing(false);
+    }, 300);
+    if (tipTimerRef.current) clearTimeout(tipTimerRef.current);
+  }, []);
 
   // Load message history and setup websocket subscription
   useEffect(() => {
@@ -190,10 +234,68 @@ export function ChatArea({
     return name ? name.substring(0, 2).toUpperCase() : 'U';
   };
 
+  const isBot = (name) => {
+    return name && name.toLowerCase() === 'amiebot';
+  };
+
+  // Handle textarea input for @ mention detection
+  const handleInputChange = useCallback((e) => {
+    const value = e.target.value;
+    setNewMessage(value);
+
+    const cursorPos = e.target.selectionStart;
+    // Look backwards from cursor to find a standalone '@'
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (atIndex !== -1) {
+      // Make sure the '@' is at the start or preceded by a space/newline
+      const charBefore = atIndex > 0 ? textBeforeCursor[atIndex - 1] : ' ';
+      if (charBefore === ' ' || charBefore === '\n' || atIndex === 0) {
+        const typed = textBeforeCursor.substring(atIndex + 1);
+        // Only show popup if no space after the @ (still typing the mention)
+        if (!typed.includes(' ')) {
+          const botName = 'amiebot';
+          if (botName.startsWith(typed.toLowerCase())) {
+            setMentionFilter(typed);
+            setMentionStartIndex(atIndex);
+            setShowMentionPopup(true);
+            return;
+          }
+        }
+      }
+    }
+    setShowMentionPopup(false);
+    setMentionStartIndex(-1);
+  }, []);
+
+  const handleMentionSelect = useCallback(() => {
+    if (mentionStartIndex === -1) return;
+    const before = newMessage.substring(0, mentionStartIndex);
+    const cursorPos = textareaRef.current?.selectionStart || mentionStartIndex;
+    const after = newMessage.substring(cursorPos);
+    const updatedMessage = before + '@amiebot ' + after;
+    setNewMessage(updatedMessage);
+    setShowMentionPopup(false);
+    setMentionStartIndex(-1);
+    // Re-focus the textarea and place cursor after the inserted mention
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        const newCursorPos = (before + '@amiebot ').length;
+        textareaRef.current.selectionStart = newCursorPos;
+        textareaRef.current.selectionEnd = newCursorPos;
+      }
+    }, 0);
+  }, [mentionStartIndex, newMessage]);
+
   // If no channel is selected
   if (!channel) {
     return (
       <div className="empty-state">
+        <button className="mobile-hamburger" onClick={onToggleSidebar} aria-label="Open sidebar">
+          <ChevronRight size={22} />
+        </button>
         <Hash size={48} className="empty-state-icon" />
         <h2>Welcome to SlackClone!</h2>
         <p>Choose a channel from the sidebar or create a new one to begin messaging.</p>
@@ -209,6 +311,9 @@ export function ChatArea({
       <div className="chat-header">
         <div className="chat-header-info">
           <div className="chat-header-title" onClick={hasJoined ? onOpenChannelInfo : null} style={{ cursor: hasJoined ? 'pointer' : 'default' }}>
+            <button className="mobile-hamburger" onClick={(e) => { e.stopPropagation(); onToggleSidebar(); }} aria-label="Open sidebar">
+              <ChevronRight size={20} />
+            </button>
             {isPriv ? <Lock size={16} /> : <Hash size={16} />}
             <span>{channel.name}</span>
           </div>
@@ -285,13 +390,16 @@ export function ChatArea({
             )}
 
             {messages.map((msg) => (
-              <div key={msg.messageId || Math.random()} className="message-card">
-                <div className="message-avatar">
-                  {getAvatarChar(msg.username)}
+              <div key={msg.messageId || Math.random()} className={`message-card${isBot(msg.username) ? ' message-card-bot' : ''}`}>
+                <div className={`message-avatar${isBot(msg.username) ? ' message-avatar-bot' : ''}`}>
+                  {isBot(msg.username) ? '🤖' : getAvatarChar(msg.username)}
                 </div>
                 <div className="message-body">
                   <div className="message-meta">
-                    <span className="message-sender">{msg.username}</span>
+                    <span className="message-sender">
+                      {msg.username}
+                      {isBot(msg.username) && <span className="bot-badge">BOT</span>}
+                    </span>
                     <span className="message-time">{formatTimestamp(msg.createdAt)}</span>
                   </div>
                   <div className="message-content">
@@ -312,17 +420,67 @@ export function ChatArea({
 
           {/* Chat Message Input */}
           <div className="chat-input-area">
+            {/* Onboarding bot tip bubble */}
+            {showBotTip && (
+              <div className={`bot-tip-bubble${tipDismissing ? ' bot-tip-dismissing' : ''}`}>
+                <div className="bot-tip-content">
+                  <span className="bot-tip-emoji">🤖</span>
+                  <p className="bot-tip-text">
+                    <strong>Meet amiebot!</strong> Type <code>@amiebot</code> in your message to get an AI-powered response.
+                  </p>
+                </div>
+                <button className="bot-tip-close" onClick={dismissTip} aria-label="Dismiss tip">
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+
+            {/* @mention popup */}
+            {showMentionPopup && (
+              <div className="mention-popup">
+                <div className="mention-popup-header">Members</div>
+                <button
+                  className="mention-popup-item"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleMentionSelect();
+                  }}
+                  type="button"
+                >
+                  <span className="mention-popup-avatar">🤖</span>
+                  <div className="mention-popup-info">
+                    <span className="mention-popup-name">amiebot</span>
+                    <span className="mention-popup-badge">BOT</span>
+                  </div>
+                </button>
+              </div>
+            )}
             <form onSubmit={handleSend} className="chat-input-box">
               <textarea
+                ref={textareaRef}
                 className="chat-textarea"
                 placeholder={`Message #${channel.name}`}
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={handleInputChange}
                 onKeyDown={(e) => {
+                  if (showMentionPopup && e.key === 'Enter') {
+                    e.preventDefault();
+                    handleMentionSelect();
+                    return;
+                  }
+                  if (showMentionPopup && e.key === 'Escape') {
+                    e.preventDefault();
+                    setShowMentionPopup(false);
+                    return;
+                  }
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSend(e);
                   }
+                }}
+                onBlur={() => {
+                  // Delay to allow click on popup item
+                  setTimeout(() => setShowMentionPopup(false), 200);
                 }}
               />
               <div className="chat-input-actions">
