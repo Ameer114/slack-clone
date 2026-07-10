@@ -39,7 +39,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/ws",
-                                "/ws/**"
+                                "/ws/**",
+                                "/api/system/keep-alive"
                         )
                         .permitAll()
 
