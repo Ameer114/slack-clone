@@ -1,6 +1,5 @@
 // Native STOMP over WebSocket Client implementation
-const BASE_URL = "https://slack-clone-backend-0ota.onrender.com";
-
+const BASE_URL = "slack-clone-backend-0ota.onrender.com";
 class StompWebSocketClient {
   constructor() {
     this.ws = null;
