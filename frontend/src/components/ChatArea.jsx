@@ -292,13 +292,27 @@ export function ChatArea({
   // If no channel is selected
   if (!channel) {
     return (
-      <div className="empty-state">
-        <button className="mobile-hamburger" onClick={onToggleSidebar} aria-label="Open sidebar">
-          <ChevronRight size={22} />
-        </button>
-        <Hash size={48} className="empty-state-icon" />
-        <h2>Welcome to SlackClone!</h2>
-        <p>Choose a channel from the sidebar or create a new one to begin messaging.</p>
+      <div className="chat-container">
+        {/* Chat Header for empty state */}
+        <div className="chat-header">
+          <div className="chat-header-info">
+            <div className="chat-header-title">
+              {workspaceId && (
+                <button className="mobile-hamburger" onClick={onToggleSidebar} aria-label="Open sidebar">
+                  <ChevronRight size={20} />
+                </button>
+              )}
+              <span>SlackClone</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Viewport for empty state */}
+        <div className="empty-state" style={{ flex: 1 }}>
+          <Hash size={48} className="empty-state-icon" />
+          <h2>Welcome to SlackClone!</h2>
+          <p>Choose a channel from the sidebar or create a new one to begin messaging.</p>
+        </div>
       </div>
     );
   }

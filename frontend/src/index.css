@@ -51,6 +51,7 @@ body {
   padding: 0;
   overflow: hidden;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   background-color: var(--bg-primary);
 }
@@ -59,9 +60,11 @@ body {
 .app-container {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   background-color: var(--bg-primary);
   overflow: hidden;
+  position: relative;
 }
 
 /* Scrollbar styles */
@@ -87,6 +90,7 @@ body {
   justify-content: center;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: radial-gradient(circle at top left, var(--bg-primary), var(--bg-secondary));
   padding: 20px;
 }
@@ -981,7 +985,7 @@ input:checked + .toggle-slider::before {
 
   /* Channel sidebar: off-screen by default, slide in from left edge */
   .channels-sidebar {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
@@ -1001,7 +1005,7 @@ input:checked + .toggle-slider::before {
   /* Overlay backdrop */
   .mobile-sidebar-overlay {
     display: block;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
