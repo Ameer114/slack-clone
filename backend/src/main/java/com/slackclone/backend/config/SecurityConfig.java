@@ -70,7 +70,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:5173",
-                "https://*.onrender.com"
+                "https://*.onrender.com",
+                "https://slackclone114.vercel.app"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("*"));
