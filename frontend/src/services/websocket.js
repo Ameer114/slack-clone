@@ -1,4 +1,6 @@
 // Native STOMP over WebSocket Client implementation
+const BASE_URL = "https://slack-clone-backend-0ota.onrender.com";
+
 class StompWebSocketClient {
   constructor() {
     this.ws = null;
@@ -15,16 +17,16 @@ class StompWebSocketClient {
     if (this.ws) {
       this.disconnect();
     }
-    
+
     this.token = token;
     if (onStatusChange) {
       this.onStatusChange = onStatusChange;
     }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/websocket?token=${encodeURIComponent(token)}`;
+    const wsUrl = `${protocol}//${BASE_URL}/ws/websocket?token=${encodeURIComponent(token)}`;
     console.log('Connecting to WebSocket:', wsUrl);
-    
+
     try {
       this.ws = new WebSocket(wsUrl);
       this._updateStatus(false, 'connecting');
@@ -46,7 +48,7 @@ class StompWebSocketClient {
         console.log('WebSocket connection closed:', event.code, event.reason);
         this._cleanup();
         this._updateStatus(false, 'disconnected');
-        
+
         // Auto-reconnect after 3 seconds
         this.reconnectTimeout = setTimeout(() => {
           console.log('Attempting to reconnect...');
@@ -110,13 +112,13 @@ class StompWebSocketClient {
 
   _sendFrame(command, headers = {}, body = '') {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-    
+
     let frame = `${command}\n`;
     for (const [key, val] of Object.entries(headers)) {
       frame += `${key}:${val}\n`;
     }
     frame += `\n${body}\u0000`;
-    
+
     this.ws.send(frame);
   }
 
@@ -136,7 +138,7 @@ class StompWebSocketClient {
       this.connected = true;
       this._updateStatus(true, 'connected');
       this._startHeartbeat();
-      
+
       // Resubscribe to active subscriptions on reconnect
       this.subscriptions.forEach((sub, subId) => {
         console.log(`Resubscribing to ${sub.destination} (id: ${subId})`);
