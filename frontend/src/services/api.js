@@ -1,4 +1,4 @@
-const API_BASE = '';
+const API_BASE = 'https://slack-clone-backend-0ota.onrender.com';
 
 // Helper to get headers with optional Authorization
 function getHeaders(extraHeaders = {}) {
@@ -27,7 +27,7 @@ async function handleResponse(response) {
     }
     throw new Error(errorMessage);
   }
-  
+
   // Some endpoints return empty bodies (like POST /join or approve/reject)
   const contentType = response.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
