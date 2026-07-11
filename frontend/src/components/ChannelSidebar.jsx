@@ -232,79 +232,80 @@ export function ChannelSidebar({
         </div>
       </div>
 
-      {/* Create Channel Modal */}
-      {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Create a Channel</h2>
-              <button className="modal-close-btn" onClick={() => setShowCreateModal(false)}>×</button>
-            </div>
-            <form onSubmit={handleCreateChannel}>
-              <div className="modal-body">
-                {error && <div className="error-banner">{error}</div>}
-                
-                <div className="auth-form-group">
-                  <label htmlFor="chan-name">Channel Name</label>
-                  <input
-                    id="chan-name"
-                    type="text"
-                    className="auth-input"
-                    placeholder="e.g. marketing-plan"
-                    value={channelName}
-                    onChange={(e) => setChannelName(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Names must be lowercase, without spaces or special characters.
-                  </span>
-                </div>
-
-                <div className="auth-form-group">
-                  <label htmlFor="chan-desc">Description</label>
-                  <input
-                    id="chan-desc"
-                    type="text"
-                    className="auth-input"
-                    placeholder="What is this channel about?"
-                    value={channelDesc}
-                    onChange={(e) => setChannelDesc(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className="auth-form-group" style={{ flexDirection: 'row', alignItems: 'center', marginTop: '16px', gap: '10px' }}>
-                  <label htmlFor="chan-private" className="toggle-switch">
-                    <input
-                      id="chan-private"
-                      type="checkbox"
-                      style={{ display: 'none' }}
-                      checked={isPrivate}
-                      onChange={(e) => setIsPrivate(e.target.checked)}
-                      disabled={loading}
-                    />
-                    <div className="toggle-slider"></div>
-                    <span style={{ textTransform: 'none', fontWeight: 600 }}>Make this channel private</span>
-                  </label>
-                </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '4px 0 0 50px' }}>
-                  When a channel is private, it can only be viewed or joined by request and approval.
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Channel'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
+
+    {/* Create Channel Modal */}
+    {showCreateModal && (
+      <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2 className="modal-title">Create a Channel</h2>
+            <button className="modal-close-btn" onClick={() => setShowCreateModal(false)}>×</button>
+          </div>
+          <form onSubmit={handleCreateChannel}>
+            <div className="modal-body">
+              {error && <div className="error-banner">{error}</div>}
+              
+              <div className="auth-form-group">
+                <label htmlFor="chan-name">Channel Name</label>
+                <input
+                  id="chan-name"
+                  type="text"
+                  className="auth-input"
+                  placeholder="e.g. marketing-plan"
+                  value={channelName}
+                  onChange={(e) => setChannelName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Names must be lowercase, without spaces or special characters.
+                </span>
+              </div>
+
+              <div className="auth-form-group">
+                <label htmlFor="chan-desc">Description</label>
+                <input
+                  id="chan-desc"
+                  type="text"
+                  className="auth-input"
+                  placeholder="What is this channel about?"
+                  value={channelDesc}
+                  onChange={(e) => setChannelDesc(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="auth-form-group" style={{ flexDirection: 'row', alignItems: 'center', marginTop: '16px', gap: '10px' }}>
+                <label htmlFor="chan-private" className="toggle-switch">
+                  <input
+                    id="chan-private"
+                    type="checkbox"
+                    style={{ display: 'none' }}
+                    checked={isPrivate}
+                    onChange={(e) => setIsPrivate(e.target.checked)}
+                    disabled={loading}
+                  />
+                  <div className="toggle-slider"></div>
+                  <span style={{ textTransform: 'none', fontWeight: 600 }}>Make this channel private</span>
+                </label>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '4px 0 0 50px' }}>
+                When a channel is private, it can only be viewed or joined by request and approval.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? 'Creating...' : 'Create Channel'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
     </>
   );
 }

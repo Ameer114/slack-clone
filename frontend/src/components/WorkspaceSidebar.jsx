@@ -72,7 +72,8 @@ export function WorkspaceSidebar({
   };
 
   return (
-    <div className="workspaces-sidebar">
+    <>
+      <div className="workspaces-sidebar">
       {/* Workspace List */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', width: '100%' }}>
         {workspaces.map((ws) => (
@@ -136,97 +137,98 @@ export function WorkspaceSidebar({
           <LogOut size={18} />
         </button>
       </div>
-
-      {/* Create Workspace Modal */}
-      {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Create a Workspace</h2>
-              <button className="modal-close-btn" onClick={() => setShowCreateModal(false)}>×</button>
-            </div>
-            <form onSubmit={handleCreateWorkspace}>
-              <div className="modal-body">
-                {error && <div className="error-banner">{error}</div>}
-                <div className="auth-form-group">
-                  <label htmlFor="ws-name">Workspace Name</label>
-                  <input
-                    id="ws-name"
-                    type="text"
-                    className="auth-input"
-                    placeholder="e.g. Acme Corp"
-                    value={workspaceName}
-                    onChange={(e) => setWorkspaceName(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-                <div className="auth-form-group">
-                  <label htmlFor="ws-desc">Description</label>
-                  <input
-                    id="ws-desc"
-                    type="text"
-                    className="auth-input"
-                    placeholder="What is this workspace for?"
-                    value={workspaceDesc}
-                    onChange={(e) => setWorkspaceDesc(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Join Workspace Modal */}
-      {showJoinModal && (
-        <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Join a Workspace</h2>
-              <button className="modal-close-btn" onClick={() => setShowJoinModal(false)}>×</button>
-            </div>
-            <form onSubmit={handleJoinWorkspace}>
-              <div className="modal-body">
-                {error && <div className="error-banner">{error}</div>}
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                  Enter the UUID of the workspace you would like to join.
-                </p>
-                <div className="auth-form-group">
-                  <label htmlFor="ws-id">Workspace ID (UUID)</label>
-                  <input
-                    id="ws-id"
-                    type="text"
-                    className="auth-input"
-                    placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
-                    value={joinId}
-                    onChange={(e) => setJoinId(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowJoinModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Joining...' : 'Join'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
+
+    {/* Create Workspace Modal */}
+    {showCreateModal && (
+      <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2 className="modal-title">Create a Workspace</h2>
+            <button className="modal-close-btn" onClick={() => setShowCreateModal(false)}>×</button>
+          </div>
+          <form onSubmit={handleCreateWorkspace}>
+            <div className="modal-body">
+              {error && <div className="error-banner">{error}</div>}
+              <div className="auth-form-group">
+                <label htmlFor="ws-name">Workspace Name</label>
+                <input
+                  id="ws-name"
+                  type="text"
+                  className="auth-input"
+                  placeholder="e.g. Acme Corp"
+                  value={workspaceName}
+                  onChange={(e) => setWorkspaceName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="auth-form-group">
+                <label htmlFor="ws-desc">Description</label>
+                <input
+                  id="ws-desc"
+                  type="text"
+                  className="auth-input"
+                  placeholder="What is this workspace for?"
+                  value={workspaceDesc}
+                  onChange={(e) => setWorkspaceDesc(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? 'Creating...' : 'Create'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {/* Join Workspace Modal */}
+    {showJoinModal && (
+      <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2 className="modal-title">Join a Workspace</h2>
+            <button className="modal-close-btn" onClick={() => setShowJoinModal(false)}>×</button>
+          </div>
+          <form onSubmit={handleJoinWorkspace}>
+            <div className="modal-body">
+              {error && <div className="error-banner">{error}</div>}
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                Enter the UUID of the workspace you would like to join.
+              </p>
+              <div className="auth-form-group">
+                <label htmlFor="ws-id">Workspace ID (UUID)</label>
+                <input
+                  id="ws-id"
+                  type="text"
+                  className="auth-input"
+                  placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
+                  value={joinId}
+                  onChange={(e) => setJoinId(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowJoinModal(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? 'Joining...' : 'Join'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
